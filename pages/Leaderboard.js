@@ -1,14 +1,16 @@
-import React from 'react';
+import React from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import LeaderBoard from "../components/Leaderboard";
-function Leaderboard() {
-  
-  return <div>
+import Leaderboard from "../components/Leaderboard";
+
+function LeaderboardPage() {
+  return (
+    <div>
       <Navbar />
-      <LeaderBoard />
-    <Footer />
-  </div>;
+      <Leaderboard />
+      <Footer />
+    </div>
+  );
 }
 
-export default Leaderboard;
+export default LeaderboardPage;

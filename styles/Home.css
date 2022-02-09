@@ -122,3 +122,8 @@
 #score {
   color: gray;
 }
+
+#response {
+  font-weight: bold;
+  color: black;
+}

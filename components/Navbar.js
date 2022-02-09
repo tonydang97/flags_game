@@ -75,17 +75,13 @@ function Navbar() {
           </a>
         )}
         {!session && (
-          <a href="#" onClick={handleSignin} className="btn-signin">
-            SIGN IN
-          </a>
-
-          // <a>
-          //   <NavbarItem
-          //     onclick={handleSignin}
-          //     title="SIGN IN"
-          //     Icon={LoginIcon}
-          //   />
+          // <a href="#" onClick={handleSignin} className="btn-signin">
+          //   SIGN IN
           // </a>
+
+          <div onClick={handleSignin}>
+            <NavbarItem title="SIGN IN" Icon={LoginIcon} />
+          </div>
         )}
         {/* </div> */}
         <button onClick={toggleNavbar}>

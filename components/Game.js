@@ -3,8 +3,36 @@ import Image from "next/image";
 import { useState } from "react";
 import DisplayTime from "./DisplayTime";
 import Caroussel from "./Caroussel";
+import { FacebookShareButton, FacebookIcon } from "next-share";
+import { PinterestShareButton, PinterestIcon } from "next-share";
+import { TwitterShareButton, TwitterIcon } from "next-share";
+import { LinkedinShareButton, LinkedinIcon } from "next-share";
+
 // import { displayCountry } from "./DisplayCoutryFlag";
 
+async function newScore(name, score, time, zone) {
+  const response = await fetch("/api/addscore", {
+    method: "POST",
+    body: JSON.stringify({ name, score, time, zone }),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || "Something went wrong!");
+  }
+
+  return data;
+}
+
+async function sendScore(name, score, time, zone) {
+  console.log("test");
+  const resp = await newScore(name, score, time, zone);
+  console.log(resp);
+}
 //donne le prochain nom de pays à trouver
 function getNextName(arrayCode, countriesList, count) {
   if (count === arrayCode.length) {
@@ -114,6 +142,8 @@ export default function Results({ results }) {
   const [finalScore, setFinalScore] = useState(0);
   //enregistre le temps final
   const [finalTime, setFinalTime] = useState(0);
+  //score envoyé
+  const [scoreSended, setScoreSended] = useSession(false);
 
   //Création du dictionnaire contenant les infos pays + array contenant les codes pays
   const indexedCountries = results.index;
@@ -142,10 +172,6 @@ export default function Results({ results }) {
       setCount(count + 1);
       //+1 au nombre total d'essai du joueur
       setTotalCount(totalCount + 1);
-      console.log("avant la fin");
-      console.log(count);
-      console.log(totalCount);
-      console.log(finalScore);
       if (count === randomNames.length - 1) {
         setCount(count + 1);
         setTotalCount(totalCount + 1);
@@ -153,14 +179,6 @@ export default function Results({ results }) {
         setFinalScore(score(count, totalCount));
         setFinalTime(time);
         setIsFinish(true);
-        console.log("à la fin");
-        console.log(count);
-        console.log(totalCount);
-        console.log(score(count, totalCount));
-        console.log(finalScore);
-        if (session !== null) {
-          console.log("ok il faut enregistrer les résultats dans la DB");
-        }
       }
       //la réponse est fausse
     } else {
@@ -177,7 +195,6 @@ export default function Results({ results }) {
         giveAnswer(answerBorder);
         setTotalCount(totalCount + 1);
       }
-      score(count, totalCount);
     }
   }
 
@@ -260,28 +277,109 @@ export default function Results({ results }) {
               {isStart === true && "Stop"}
             </button>
           </div>
-          <div id="flags" className="grid gap-2 grid-cols-10 grid-rows-3">
-            {displayCountry}
-          </div>
-          {isFinish === true && session === null && (
-            <div className="flex justify-center absolute bottom-0 z-1 bg-teal-400 w-80 h-80 rounded-2xl p-4">
-              <p>
-                Bravo Anonyme <br /> Vous avez terminé avec un taux de bonne
-                réponse de : {finalScore},<br /> et un temps de :{" "}
-              <DisplayTime time={finalTime} />
-              </p>
+            <div id="flags" className="grid gap-2 grid-cols-10 grid-rows-3">
+              {displayCountry}
             </div>
-          )}
-          {isFinish === true && session !== null && (
-            <div className="absolute bottom-0 left-0 z-1 bg-green-500 h-4/5 w-4/5">
-              <p>
-                Bravo {session.user.name || session.user.email} <br /> Vous avez
-                terminé avec un taux de bonne réponse de : {finalScore},<br />{" "}
-                et un temps de :{" "}
-              </p>
-              <DisplayTime time={finalTime} />
-            </div>
-          )}
+            {isFinish === true && session === null && (
+              <div className="flex justify-around  bottom-0 z-1 bg-teal-400 min-w-fit min-h-fit rounded-2xl p-4 m-5">
+                  <p id="response">Bravo Anonyme <br /> Vous avez terminé avec un taux de bonne
+                  réponse de : {finalScore},<br /> </p>
+                <DisplayTime time={finalTime} />
+                <p>
+                  <FacebookShareButton
+                    url={"http://localhost:3000"}
+                    quote={
+                      "next-share is a social share buttons for your next React apps."
+                    }
+                    hashtag={"#nextshare"}
+                  >
+                    <FacebookIcon size={32} round />
+                  </FacebookShareButton>
+  
+                  <TwitterShareButton
+                    url={"https://github.com/next-share"}
+                    quote={"coucou"}
+                    hashtag={"#nextshare"}
+                  >
+                    <TwitterIcon size={32} round />
+                  </TwitterShareButton>
+  
+                  <LinkedinShareButton
+                    url={"https://github.com/next-share"}
+                    quote={
+                      "next-share is a social share buttons for your next React apps."
+                    }
+                    hashtag={"#nextshare"}
+                  >
+                    <LinkedinIcon size={32} round />
+                  </LinkedinShareButton>
+  
+                  <PinterestShareButton
+                    url={"https://github.com/next-share"}
+                    quote={
+                      "next-share is a social share buttons for your next React apps."
+                    }
+                    hashtag={"#nextshare"}
+                  >
+                    <PinterestIcon size={32} round />
+                  </PinterestShareButton>
+                </p>
+              </div>
+            )}
+            {isFinish === true &&
+              session !== null &&
+              (sendScore(session.user.name, finalScore, finalTime, results.zone),
+              (
+                <div className="absolute bottom-0 left-0 z-1 bg-green-500 h-4/5 w-4/5">
+                  <p>
+                    Bravo {session.user.name || session.user.email} <br /> Vous
+                    avez terminé avec un taux de bonne réponse de : {finalScore},
+                    <br /> et un temps de :{" "}
+                  </p>
+                  <DisplayTime time={finalTime} />
+                  <p>
+                    <FacebookShareButton
+                      url={"https://github.com/next-share"}
+                      quote={
+                        "next-share is a social share buttons for your next React apps."
+                      }
+                      hashtag={"#nextshare"}
+                    >
+                      <FacebookIcon size={32} round />
+                    </FacebookShareButton>
+  
+                    <TwitterShareButton
+                      url={"https://github.com/next-share"}
+                      quote={
+                        "next-share is a social share buttons for your next React apps."
+                      }
+                      hashtag={"#nextshare"}
+                    >
+                      <TwitterIcon size={32} round />
+                    </TwitterShareButton>
+  
+                    <LinkedinShareButton
+                      url={"https://github.com/next-share"}
+                      quote={
+                        "next-share is a social share buttons for your next React apps."
+                      }
+                      hashtag={"#nextshare"}
+                    >
+                      <LinkedinIcon size={32} round />
+                    </LinkedinShareButton>
+  
+                    <PinterestShareButton
+                      url={"https://github.com/next-share"}
+                      quote={
+                        "next-share is a social share buttons for your next React apps."
+                      }
+                      hashtag={"#nextshare"}
+                    >
+                      <PinterestIcon size={32} round />
+                    </PinterestShareButton>
+                  </p>
+                </div>
+            ))}
         </div>
       )}
     </div>

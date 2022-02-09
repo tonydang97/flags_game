@@ -5,6 +5,3 @@ module.exports = {
     formats: ["image/avif", "image/webp"],
   },
 };
-
-const withImages = require('next-images')
-module.exports = withImages()

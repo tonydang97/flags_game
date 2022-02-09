@@ -70,6 +70,7 @@ export async function getServerSideProps(context) {
       codes: codeArray,
       randomNames: randomNames,
       randomFlags: randomFlags,
+      zone: url,
     },
   };
 }

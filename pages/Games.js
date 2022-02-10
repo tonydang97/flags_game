@@ -13,8 +13,6 @@ export default function Games(props) {
   const router = useRouter();
   //pendant que loading === true, les props de session n'existent pas. Les récups que quand
   //loading === false
-  console.log(loading);
-  console.log(session);
 
   function play(e) {
     e.preventDefault;
@@ -22,15 +20,15 @@ export default function Games(props) {
   }
 
   const zoneCard = zoneList.map((key) => (
-    <div class="w-fit md:w-1/2 xl:w-4/5 px-4">
-      <div class="bg-white rounded-lg overflow-hidden mb-10">
-        <div class="">
-          <Image src={key.image} alt="image" height={500} width={500}/>
+    <div className="w-fit md:w-1/2 xl:w-4/5 px-4">
+      <div className="bg-white rounded-lg overflow-hidden mb-10">
+        <div className="">
+          <Image src={key.image} alt="image" height={500} width={500} />
         </div>
-        <div class="pb-5 sm:pb-5 md:pb-5 xl:pb-5 text-center">
+        <div className="pb-5 sm:pb-5 md:pb-5 xl:pb-5 text-center">
           <h3>
             <p
-              class="
+              className="
           font-semibold
           text-black text-xl
           sm:text-[22px]
@@ -46,18 +44,20 @@ export default function Games(props) {
             </p>
           </h3>
 
-          <button id={key.title}
-        onClick={play} 
-        class="bg-[#ed194f]
+          <button
+            id={key.title}
+            onClick={play}
+            className="bg-[#ed194f]
         rounded-full 
         font-bold text-white 
         px-4 py-3 
         transition 
         duration-300 
         ease-in-out 
-        hover:bg-[#ed194f]">
-                Jouer
-            </button>
+        hover:bg[#f2567d]"
+          >
+            Jouer
+          </button>
         </div>
       </div>
     </div>

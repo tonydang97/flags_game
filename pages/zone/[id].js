@@ -20,9 +20,14 @@ function shuffleArray(array) {
 }
 export default function Zone(props) {
   return (
-    <div  className="min-h-screen w-full">
+    <div className="min-h-screen w-full">
       <div id="playing" className="bg-slate-500 min-h-screen w-full">
         <Navbar />
+        <div className="flex justify-center items-center p-10">
+          <h1 className="text-black text-5xl">
+            Vous avez choisi la zone : {props.zone}{" "}
+          </h1>
+        </div>
         <Game results={props} />
       </div>
       <Footer />
@@ -33,8 +38,8 @@ export default function Zone(props) {
 export async function getServerSideProps(context) {
   const url = context.query.id;
   //fetch la liste des pays de la zone demandée
-  // const reqCountries = await fetch(requests[url]);
-  const reqCountries = await fetch("https://restcountries.com/v3.1/name/peru");
+  const reqCountries = await fetch(requests[url]);
+  // const reqCountries = await fetch("https://restcountries.com/v3.1/name/peru");
   const dataCountries = await reqCountries.json();
 
   // transforme la liste json en array

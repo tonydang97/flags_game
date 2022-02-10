@@ -121,3 +121,8 @@ body{
 	border-top-right-radius: 0px;
 	border-bottom-right-radius: 0px;
 }
+
+#profil {
+    background-image: url("../public/wallpaper.jpg");
+    background-size: cover;
+}

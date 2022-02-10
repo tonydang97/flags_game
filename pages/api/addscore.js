@@ -1,13 +1,14 @@
 import { connectToDatabase } from "../../lib/db";
 
 async function handler(req, res) {
+  console.log("ça passe combien de fois dans handler ?");
   if (req.method !== "POST") {
     return;
   }
 
   const data = req.body;
 
-  const { name, score, time, zone } = data;
+  const { name, email, score, time, zone } = data;
 
   const client = await connectToDatabase();
 
@@ -16,11 +17,12 @@ async function handler(req, res) {
     .collection("Score")
     .insertOne({
       name: name,
+      email: email,
       score: score,
       time: time,
       zone: zone,
     });
-
+  console.log(result);
   res.status(201).json({ message: "Score enregistré" });
   client.close();
 }

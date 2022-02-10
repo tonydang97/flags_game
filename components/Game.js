@@ -2,18 +2,20 @@ import { useSession } from "next-auth/client";
 import Image from "next/image";
 import { useState } from "react";
 import DisplayTime from "./DisplayTime";
-import Caroussel from "./Caroussel";
-import { FacebookShareButton, FacebookIcon } from "next-share";
-import { PinterestShareButton, PinterestIcon } from "next-share";
-import { TwitterShareButton, TwitterIcon } from "next-share";
-import { LinkedinShareButton, LinkedinIcon } from "next-share";
+import SocialBoutons from "./SocialBoutons";
+import { signIn } from "next-auth/client";
 
 // import { displayCountry } from "./DisplayCoutryFlag";
+const handleSignin = (e) => {
+  e.preventDefault();
+  signIn();
+};
 
-async function newScore(name, score, time, zone) {
+async function newScore(name, email, score, time, zone) {
+  console.log("ça newScore combien de fois ?");
   const response = await fetch("/api/addscore", {
     method: "POST",
-    body: JSON.stringify({ name, score, time, zone }),
+    body: JSON.stringify({ name, email, score, time, zone }),
     headers: {
       "Content-Type": "application/json",
     },
@@ -24,15 +26,10 @@ async function newScore(name, score, time, zone) {
   if (!response.ok) {
     throw new Error(data.message || "Something went wrong!");
   }
-
+  console.log(data);
   return data;
 }
 
-async function sendScore(name, score, time, zone) {
-  console.log("test");
-  const resp = await newScore(name, score, time, zone);
-  console.log(resp);
-}
 //donne le prochain nom de pays à trouver
 function getNextName(arrayCode, countriesList, count) {
   if (count === arrayCode.length) {
@@ -138,14 +135,10 @@ export default function Results({ results }) {
   const [totalCount, setTotalCount] = useState(0);
   //compte du nombre d'erreur consécutives
   const [mistakes, setMistakes] = useState(0);
-  //enregistre le score final
-  const [finalScore, setFinalScore] = useState(0);
   //enregistre le temps final
   const [finalTime, setFinalTime] = useState(0);
-  //score envoyé
-  const [scoreSended, setScoreSended] = useSession(false);
 
-  //Création du dictionnaire contenant les infos pays + array contenant les codes pays
+  //Création du dictionnaire contenant les infos pays + array contenant les codes pays pour drapeau et nom aléatoires
   const indexedCountries = results.index;
   const randomFlags = results.randomFlags;
   const randomNames = results.randomNames;
@@ -172,28 +165,34 @@ export default function Results({ results }) {
       setCount(count + 1);
       //+1 au nombre total d'essai du joueur
       setTotalCount(totalCount + 1);
+      //bonne réponse sur le dernier drapeau, fin du jeu
       if (count === randomNames.length - 1) {
-        setCount(count + 1);
-        setTotalCount(totalCount + 1);
+        // setCount(count + 1);
+        // setTotalCount(totalCount + 1);
         stopTime();
-        setFinalScore(score(count, totalCount));
+        // setFinalScore(score(count, totalCount));
         setFinalTime(time);
         setIsFinish(true);
+        if (session !== null) {
+          newScore(
+            session.user.name,
+            session.user.email,
+            score(count, totalCount),
+            time,
+            results.zone
+          );
+        }
       }
       //la réponse est fausse
     } else {
+      //déclenche le voyant d'erreur et ajoute 1 au compteur erreurs, recalcule la précision
+      setMistakes(mistakes + 1);
+      changeBorder();
+      setTotalCount(totalCount + 1);
       //le joueur à moins de 3 fautes consécutives
-      if (mistakes < 2) {
-        //déclenche le voyant d'erreur et ajoute 1 au compteur erreurs, recalcule la précision
-        setMistakes(mistakes + 1);
-        changeBorder();
-        setTotalCount(totalCount + 1);
-      } else {
+      if (mistakes >= 2) {
         //le joueur a atteint 3 fautes consécutives, déclenche le voyant qui indique la bonne réponse
-        setMistakes(mistakes + 1);
-        changeBorder();
         giveAnswer(answerBorder);
-        setTotalCount(totalCount + 1);
       }
     }
   }
@@ -233,18 +232,17 @@ export default function Results({ results }) {
       {/* si le jeu n'a pas débuté */}
       {isStart === false && (
         <div id="border" className="">
-          <h1 className="text-5xl">Vous avez choisi la zone : </h1>
           <div className="flex justify-center p-8">
             <button
               id="buttonNouveau"
-              class="bg-green-500 rounded-full font-bold text-white px-10 py-5 transition duration-300 ease-in-out hover:bg-green-600 mr-6 "
+              className="bg-green-500 rounded-full font-bold text-white px-10 py-5 transition duration-300 ease-in-out hover:bg-green-600 mr-6 "
               type="button"
               onClick={startGame}
             >
               {isStart === false && "Start"}
               {isStart === true && "Stop"}
             </button>
-          </div> 
+          </div>
         </div>
       )}
       {/* si le jeu a débuté */}
@@ -254,20 +252,24 @@ export default function Results({ results }) {
           className="relative bg-slate-100 border-2 border-black px-5 pb-5 rounded-lg"
         >
           <div className="flex justify-between p-5">
-            <div id="controlers" className="flex">
+            <div id="controlers" className="flex justify-around">
               <h2 id="nomdupays" className="flex text-black text-2xl mr-10">
                 Nom du pays :
-                <p id={randomNames[count]} key={randomNames[count]}>
+                <p
+                  className="pl-2"
+                  id={randomNames[count]}
+                  key={randomNames[count]}
+                >
                   {getNextName(randomNames, indexedCountries, count)}
                 </p>
               </h2>
-              <p id="bonnesreponses"className="text-black text-2xl mr-10">
-                Bonnes réponses : 
-                <span id="score">{" " + score(count, totalCount)}</span> %
-              </p>
+              {/* <p className="text-black text-2xl mr-10">
+                Bonnes réponses :
+                <span id="score">{score(count, totalCount)}</span> %
+              </p> */}
               <DisplayTime time={time} />
             </div>
-            <button
+            {/* <button
               id="buttonNouveau"
               className="bg-red-500 font-bold text-white px-4 py-3 transition duration-300 ease-in-out hover:bg-red-600 mr-6 rounded-lg"
               type="button"
@@ -275,111 +277,52 @@ export default function Results({ results }) {
             >
               {isStart === false && "Start"}
               {isStart === true && "Stop"}
-            </button>
+            </button> */}
           </div>
-            <div id="flags" className="grid gap-2 grid-cols-10 grid-rows-3">
-              {displayCountry}
+          <div id="flags" className="grid gap-2 grid-cols-10 grid-rows-3">
+            {displayCountry}
+          </div>
+          {isFinish === true && session === null && (
+            <div className="flex justify-around  bottom-0 z-1 bg-teal-400 min-w-fit min-h-fit rounded-2xl p-4 m-5">
+              <p className="font-bold text-black">
+                Bravo Anonyme <br /> Vous avez terminé avec un taux de bonne
+                réponse de : {score(count, totalCount)} %,
+                <br />
+              </p>
+              <DisplayTime time={finalTime} />
+              {/* <p>
+                Si vous voulez partagez vos scores sur vos réseaux sociaux,
+                connectez vous ! <br />
+                Lien pour bouton !
+              </p> */}
+              <button
+                id="connect"
+                onClick={handleSignin}
+                className="bg-[#ed194f]
+        rounded-full 
+        font-bold text-white 
+        px-4 py-3 
+        transition 
+        duration-300 
+        ease-in-out 
+        hover:bg[#f2567d]"
+              >
+                Login
+              </button>
             </div>
-            {isFinish === true && session === null && (
-              <div className="flex justify-around  bottom-0 z-1 bg-teal-400 min-w-fit min-h-fit rounded-2xl p-4 m-5">
-                  <p id="response">Bravo Anonyme <br /> Vous avez terminé avec un taux de bonne
-                  réponse de : {finalScore},<br /> </p>
-                <DisplayTime time={finalTime} />
-                <p>
-                  <FacebookShareButton
-                    url={"http://localhost:3000"}
-                    quote={
-                      "next-share is a social share buttons for your next React apps."
-                    }
-                    hashtag={"#nextshare"}
-                  >
-                    <FacebookIcon size={32} round />
-                  </FacebookShareButton>
-  
-                  <TwitterShareButton
-                    url={"https://github.com/next-share"}
-                    quote={"coucou"}
-                    hashtag={"#nextshare"}
-                  >
-                    <TwitterIcon size={32} round />
-                  </TwitterShareButton>
-  
-                  <LinkedinShareButton
-                    url={"https://github.com/next-share"}
-                    quote={
-                      "next-share is a social share buttons for your next React apps."
-                    }
-                    hashtag={"#nextshare"}
-                  >
-                    <LinkedinIcon size={32} round />
-                  </LinkedinShareButton>
-  
-                  <PinterestShareButton
-                    url={"https://github.com/next-share"}
-                    quote={
-                      "next-share is a social share buttons for your next React apps."
-                    }
-                    hashtag={"#nextshare"}
-                  >
-                    <PinterestIcon size={32} round />
-                  </PinterestShareButton>
-                </p>
-              </div>
-            )}
-            {isFinish === true &&
-              session !== null &&
-              (sendScore(session.user.name, finalScore, finalTime, results.zone),
-              (
-                <div className="absolute bottom-0 left-0 z-1 bg-green-500 h-4/5 w-4/5">
-                  <p>
-                    Bravo {session.user.name || session.user.email} <br /> Vous
-                    avez terminé avec un taux de bonne réponse de : {finalScore},
-                    <br /> et un temps de :{" "}
-                  </p>
-                  <DisplayTime time={finalTime} />
-                  <p>
-                    <FacebookShareButton
-                      url={"https://github.com/next-share"}
-                      quote={
-                        "next-share is a social share buttons for your next React apps."
-                      }
-                      hashtag={"#nextshare"}
-                    >
-                      <FacebookIcon size={32} round />
-                    </FacebookShareButton>
-  
-                    <TwitterShareButton
-                      url={"https://github.com/next-share"}
-                      quote={
-                        "next-share is a social share buttons for your next React apps."
-                      }
-                      hashtag={"#nextshare"}
-                    >
-                      <TwitterIcon size={32} round />
-                    </TwitterShareButton>
-  
-                    <LinkedinShareButton
-                      url={"https://github.com/next-share"}
-                      quote={
-                        "next-share is a social share buttons for your next React apps."
-                      }
-                      hashtag={"#nextshare"}
-                    >
-                      <LinkedinIcon size={32} round />
-                    </LinkedinShareButton>
-  
-                    <PinterestShareButton
-                      url={"https://github.com/next-share"}
-                      quote={
-                        "next-share is a social share buttons for your next React apps."
-                      }
-                      hashtag={"#nextshare"}
-                    >
-                      <PinterestIcon size={32} round />
-                    </PinterestShareButton>
-                  </p>
-                </div>
-            ))}
+          )}
+          {isFinish === true && session !== null && (
+            <div className="flex justify-around  bottom-0 z-1 bg-teal-400 min-w-fit min-h-fit rounded-2xl p-4 m-5">
+              <p className="font-bold text-black">
+                Bravo {session.user.name || session.user.email} <br /> Vous avez
+                terminé avec un taux de bonne réponse de :{" "}
+                {score(count, totalCount)},
+                <br />
+              </p>
+              <DisplayTime time={finalTime} />
+              <SocialBoutons />
+            </div>
+          )}
         </div>
       )}
     </div>

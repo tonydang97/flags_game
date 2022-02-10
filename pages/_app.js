@@ -6,7 +6,7 @@ import "../styles/Navbar.css";
 import "../styles/LeaderBoard.css";
 import "../styles/Profil.css";
 import "../styles/Caroussel.css";
-import "../styles/Map.css";
+
 import { Provider } from "next-auth/client";
 
 function MyApp({ Component, pageProps }) {

@@ -1,9 +1,7 @@
 import React, { useState } from "react";
-import Image from "next/image";
 import ReorderIcon from "@mui/icons-material/Reorder";
 import SportsEsportsOutlinedIcon from "@mui/icons-material/SportsEsportsOutlined";
 import LeaderboardIcon from "@mui/icons-material/Leaderboard";
-import MapIcon from "@mui/icons-material/Map";
 import LoginIcon from "@mui/icons-material/Login";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import Link from "next/link";
@@ -37,7 +35,7 @@ function Navbar() {
           <Link href="/">HOME</Link>
           <Link href="/Games">GAMES</Link>
           <Link href="/Leaderboard">LEADERBOARD</Link>
-          <Link href="/Map">MAP</Link>
+          {/* <Link href="/Map">MAP</Link> */}
           <Link href="/Profil">PROFIL</Link>
         </div>
       </div>
@@ -58,21 +56,23 @@ function Navbar() {
             <NavbarItem title="LEADERBOARD" Icon={LeaderboardIcon} />
           </a>
         </Link>
-        <Link href="/Map">
+        {/* <Link href="/Map">
           <a>
             <NavbarItem title="MAP" Icon={MapIcon} />
           </a>
-        </Link>
-        <Link href="/Profil">
-          <a>
-            <NavbarItem title="PROFIL" Icon={AccountCircleIcon} />
-          </a>
-        </Link>
+        </Link> */}
+        {session && (
+          <Link href="/Profil">
+            <a>
+              <NavbarItem title="PROFIL" Icon={AccountCircleIcon} />
+            </a>
+          </Link>
+        )}
         {/* <div className="flex text-2xl justify-between"> */}
         {session && (
-          <a href="#" onClick={handleSignout} className="btn-signin">
-            SIGN OUT
-          </a>
+          <div onClick={handleSignout}>
+            <NavbarItem title="LOGOUT" Icon={LoginIcon} />
+          </div>
         )}
         {!session && (
           // <a href="#" onClick={handleSignin} className="btn-signin">

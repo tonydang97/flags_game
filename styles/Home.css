@@ -9,13 +9,12 @@
   background-repeat: no-repeat;
   background-size: cover;
   font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
-  background-image: url('../public/flags2.jpg');
+  background-image: url("../public/flags2.jpg");
 }
 
 .headerContainer {
   width: 50%;
   margin-left: 50px;
-  
 }
 
 .headerContainer h1 {
@@ -99,14 +98,13 @@
 }
 
 #playing {
-  background-image: url('../public/wallpaper.jpg');
-  background-size : cover;
-
+  background-image: url("../public/wallpaper.jpg");
+  background-size: cover;
 }
 
 #choose {
   font-weight: bold;
-  font-size: 5rem;
+  font-size: 3rem;
   padding: 10px;
   margin: 50px;
 }
